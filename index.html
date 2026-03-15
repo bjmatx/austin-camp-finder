@@ -127,7 +127,7 @@ let allCamps = [];
 
 async function loadCamps() {
   try {
-    const res = await fetch('/functions/camps');
+    const res = await fetch('/.netlify/functions/camps');
     if (!res.ok) throw new Error('Failed to load');
     allCamps = await res.json();
     render();
