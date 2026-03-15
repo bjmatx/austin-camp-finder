@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Austin Camp Finder 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f7f7f5;color:#1a1a1a;font-size:16px}
+.header{background:#2d6a4f;color:#fff;padding:1.5rem;text-align:center}
+.header h1{font-size:24px;font-weight:600;margin-bottom:4px}
+.header p{font-size:14px;opacity:0.85}
+.filters{background:#fff;padding:1rem 1.5rem;border-bottom:1px solid #e5e5e0;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.filter-group label{display:block;font-size:12px;color:#666;margin-bottom:4px;font-weight:500}
+select,input[type=number]{width:100%;padding:8px 10px;font-size:14px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a1a;-webkit-appearance:none}
+select:focus,input:focus{outline:none;border-color:#2d6a4f}
+.results-bar{padding:0.75rem 1.5rem;font-size:13px;color:#666;background:#fff;border-bottom:1px solid #e5e5e0;display:flex;justify-content:space-between;align-items:center}
+.reset-btn{font-size:13px;color:#2d6a4f;background:none;border:none;cursor:pointer;text-decoration:underline}
+.camp-list{padding:1rem}
+.camp-card{background:#fff;border-radius:12px;border:1px solid #e5e5e0;padding:1.25rem;margin-bottom:10px}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.camp-name{font-size:17px;font-weight:600;color:#1a1a1a;margin-bottom:2px}
+.camp-org{font-size:13px;color:#888;margin-bottom:10px}
+.camp-price{font-size:20px;font-weight:600;color:#2d6a4f;white-space:nowrap}
+.price-label{font-size:11px;color:#888;text-align:right}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500}
+.tag-stem{background:#dbeafe;color:#1e40af}
+.tag-sports{background:#dcfce7;color:#166534}
+.tag-arts{background:#fce7f3;color:#9d174d}
+.tag-music{background:#ede9fe;color:#5b21b6}
+.tag-outdoor{background:#d1fae5;color:#065f46}
+.tag-cooking{background:#fef3c7;color:#92400e}
+.tag-academic{background:#e0f2fe;color:#075985}
+.tag-general{background:#f3f4f6;color:#374151}
+.tag-neutral{background:#f3f4f6;color:#374151}
+.camp-meta{font-size:13px;color:#666;display:flex;flex-wrap:wrap;gap:8px}
+.meta-item{display:flex;align-items:center;gap:4px}
+.aftercare-badge{display:inline-block;margin-top:8px;font-size:12px;padding:3px 10px;background:#d1fae5;color:#065f46;border-radius:20px;font-weight:500}
+.website-link{display:inline-block;margin-top:10px;font-size:13px;color:#2d6a4f;text-decoration:none;font-weight:500}
+.website-link:hover{text-decoration:underline}
+.reg-badge{display:inline-block;margin-top:8px;margin-left:8px;font-size:12px;padding:3px 10px;border-radius:20px;font-weight:500}
+.reg-open{background:#d1fae5;color:#065f46}
+.reg-full{background:#fee2e2;color:#991b1b}
+.reg-waitlist{background:#fef3c7;color:#92400e}
+.no-results{text-align:center;padding:3rem 1rem;color:#888}
+.no-results p{font-size:16px;margin-bottom:12px}
+.loading{text-align:center;padding:3rem;color:#888;font-size:15px}
+.error{text-align:center;padding:2rem;color:#991b1b;font-size:14px}
+@media(max-width:600px){
+.filters{grid-template-columns:1fr 1fr}
+.card-top{flex-direction:column}
+.camp-price{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Austin Camp Finder 2026</h1>
+  <p>Filter by your child's age, budget, location, and more</p>
+</div>
+<div class="filters">
+  <div class="filter-group">
+    <label>Child's age</label>
+    <input type="number" id="f-age" min="3" max="17" placeholder="e.g. 7">
+  </div>
+  <div class="filter-group">
+    <label>Category</label>
+    <select id="f-cat">
+      <option value="">All categories</option>
+      <option>STEM</option>
+      <option>Sports</option>
+      <option>Arts</option>
+      <option>Music</option>
+      <option>Outdoor</option>
+      <option>Cooking</option>
+      <option>Academic</option>
+      <option>General</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Neighborhood</label>
+    <select id="f-hood">
+      <option value="">All neighborhoods</option>
+      <option>South Austin</option>
+      <option>North Austin</option>
+      <option>Central Austin</option>
+      <option>East Austin</option>
+      <option>West Austin</option>
+      <option>Round Rock</option>
+      <option>Cedar Park</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Max price per week</label>
+    <input type="number" id="f-price" min="0" placeholder="e.g. 400">
+  </div>
+  <div class="filter-group">
+    <label>Schedule</label>
+    <select id="f-schedule">
+      <option value="">Any schedule</option>
+      <option>Full Day</option>
+      <option>Half Day</option>
+      <option>Extended Day</option>
+    </select>
+  </div>
+  <div class="filter-group">
+    <label>Aftercare</label>
+    <select id="f-aftercare">
+      <option value="">No preference</option>
+      <option value="Yes">Required</option>
+      <option value="No">Not needed</option>
+    </select>
+  </div>
+</div>
+<div class="results-bar">
+  <span id="results-count">Loading camps...</span>
+  <button class="reset-btn" onclick="resetFilters()">Clear filters</button>
+</div>
+<div class="camp-list" id="camp-list">
+  <div class="loading">Loading camps...</div>
+</div>
+<script>
+const TOKEN = 'patasYItsgrRTutEd.4e84389c9bd73864a3b789a27b4659c15e5c74778989bb78c1fb8a963dfb6c68';
+const BASE_ID = 'app2crPcNCqz50HED';
+const TABLE_ID = 'tblEFmCzTTFXMuN50';
+const tagClass = {'STEM':'tag-stem','Sports':'tag-sports','Arts':'tag-arts','Music':'tag-music','Outdoor':'tag-outdoor','Cooking':'tag-cooking','Academic':'tag-academic','General':'tag-general'};
+const regClass = {'Open':'reg-open','Full':'reg-full','Waitlist':'reg-waitlist'};
+let allCamps = [];
+async function loadCamps() {
+  try {
+    let camps = [];
+    let offset = null;
+    do {
+      let url = `https://api.airtable.com/v0/${BASE_ID}/${TABLE_ID}?pageSize=100`;
+      if (offset) url += `&offset=${offset}`;
+      const res = await fetch(url, {headers: {'Authorization': `Bearer ${TOKEN}`}});
+      if (!res.ok) throw new Error('Failed to load');
+      const data = await res.json();
+      camps = camps.concat(data.records);
+      offset = data.offset;
+    } while (offset);
+    allCamps = camps;
+    render();
+  } catch(e) {
+    document.getElementById('camp-list').innerHTML = '<div class="error">Unable to load camps. Please try again later.</div>';
+    document.getElementById('results-count').textContent = 'Error loading camps';
+  }
+}
+function render() {
+  const age = parseInt(document.getElementById('f-age').value);
+  const cat = document.getElementById('f-cat').value;
+  const hood = document.getElementById('f-hood').value;
+  const price = parseInt(document.getElementById('f-price').value);
+  const schedule = document.getElementById('f-schedule').value;
+  const aftercare = document.getElementById('f-aftercare').value;
+  const filtered = allCamps.filter(r => {
+    const f = r.fields;
+    const ages = f['Ages Accepted'] || [];
+    if (!isNaN(age) && age > 0 && !ages.includes(String(age))) return false;
+    if (cat && f['Category - leave blank for all'] !== cat) return false;
+    if (hood && f['Neighborhood - leave blank for all'] !== hood) return false;
+    if (!isNaN(price) && price > 0 && f['Price Per Week'] > price) return false;
+    if (schedule && f['Daily Schedule - leave blank for all'] !== schedule) return false;
+    if (aftercare && f['Aftercare Available - leave blank if no preference'] !== aftercare) return false;
+    return true;
+  });
+  document.getElementById('results-count').textContent = `Showing ${filtered.length} camp${filtered.length !== 1 ? 's' : ''}`;
+  const list = document.getElementById('camp-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="no-results"><p>No camps match your filters.</p><button class="reset-btn" style="font-size:15px" onclick="resetFilters()">Clear all filters</button></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(r => {
+    const f = r.fields;
+    const name = f['Camp Name'] || 'Unnamed Camp';
+    const org = f['Organization'] || '';
+    const cat = f['Category - leave blank for all'] || '';
+    const price = f['Price Per Week'] ? `$${f['Price Per Week']}` : '';
+    const hood = f['Neighborhood - leave blank for all'] || '';
+    const schedule = f['Daily Schedule - leave blank for all'] || '';
+    const aftercare = f['Aftercare Available - leave blank if no preference'] || '';
+    const setting = f['Setting'] || '';
+    const website = f['Website'] || '';
+    const regStatus = f['Registration Status'] || '';
+    const campType = f['Camp Type'] || '';
+    const weekStart = f['Week Start'] || '';
+    const weekEnd = f['Week End'] || '';
+    const ages = f['Ages Accepted'] || [];
+    const ageRange = ages.length > 0 ? `Ages ${Math.min(...ages.map(Number))}–${Math.max(...ages.map(Number))}` : '';
+    return `<div class="camp-card">
+      <div class="card-top">
+        <div>
+          <div class="camp-name">${name}</div>
+          ${org ? `<div class="camp-org">${org}</div>` : ''}
+        </div>
+        <div>
+          ${price ? `<div class="camp-price">${price}</div><div class="price-label">per week</div>` : ''}
+        </div>
+      </div>
+      <div class="tags">
+        ${cat ? `<span class="tag ${tagClass[cat] || 'tag-general'}">${cat}</span>` : ''}
+        ${ageRange ? `<span class="tag tag-neutral">${ageRange}</span>` : ''}
+        ${setting ? `<span class="tag tag-neutral">${setting}</span>` : ''}
+        ${campType ? `<span class="tag tag-neutral">${campType}</span>` : ''}
+      </div>
+      <div class="camp-meta">
+        ${hood ? `<span class="meta-item">${hood}</span>` : ''}
+        ${schedule ? `<span class="meta-item">${schedule}</span>` : ''}
+        ${weekStart && weekEnd ? `<span class="meta-item">${weekStart} – ${weekEnd}</span>` : ''}
+      </div>
+      ${aftercare === 'Yes' ? '<div class="aftercare-badge">Aftercare available</div>' : ''}
+      ${regStatus ? `<span class="reg-badge ${regClass[regStatus] || ''}">${regStatus}</span>` : ''}
+      ${website ? `<a class="website-link" href="${website}" target="_blank">Visit website</a>` : ''}
+    </div>`;
+  }).join('');
+}
+function resetFilters() {
+  ['f-age','f-price'].forEach(id => document.getElementById(id).value = '');
+  ['f-cat','f-hood','f-schedule','f-aftercare'].forEach(id => document.getElementById(id).value = '');
+  render();
+}
+['f-age','f-cat','f-hood','f-price','f-schedule','f-aftercare'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+});
+loadCamps();
+</script>
+</body>
+</html>
